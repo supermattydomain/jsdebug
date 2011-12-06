@@ -39,7 +39,8 @@ function debug() {
 		if ("string" == typeof(arguments[i])) {
 			str += arguments[i];
 		} else {
-			// Loops in IE: debugString(JSON.stringify(JSON.decycle(obj)));
+			// FIXME: The following hangs in IE
+			// str += JSON.stringify(JSON.decycle(arguments[i]));
 			str += JSON.stringify(arguments[i]);
 		}
 	}
