@@ -24,12 +24,13 @@ function debugString(str) {
 		f = function(s) {
 			console.log(s);
 		};
-	} else if (showDebugAlerts) {
+	} else if (showDebugAlerts && alertCount < maxAlertCount) {
 		f = function(s) {
 			alert(s);
+			alertCount++;
 		};
 	} else {
-		f = function() {
+		f = function(s) {
 			// Nowhere unobtrusive to send this string. Drop it on the floor.
 		};
 	}
@@ -43,9 +44,6 @@ function debugString(str) {
  *            Any number of any type of argument - variadic.
  */
 function debug() {
-	if (showDebugAlerts && alertCount > maxAlertCount) {
-		return;
-	}
 	var str = '';
 	for ( var i = 0; i < arguments.length; i++) {
 		if ('string' == typeof (arguments[i])) {
@@ -59,7 +57,6 @@ function debug() {
 		}
 	}
 	debugString(str);
-	alertCount++;
 }
 
 function debugEvent(funcName, event) {
