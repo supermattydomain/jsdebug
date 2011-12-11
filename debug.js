@@ -20,7 +20,7 @@ var alertCount = 0;
  */
 function debugString(str) {
 	var f;
-	if ('function' == typeof (console.log)) {
+	if ('function' == typeof (console.log) || 'object' == typeof (console.log)) {
 		f = function(s) {
 			console.log(s);
 		};
