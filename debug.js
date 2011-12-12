@@ -50,8 +50,11 @@ function debug() {
 			str += arguments[i];
 		} else if ('function' == typeof (JSON.stringify)) {
 			// FIXME: Loops in IE:
-			// debugString(JSON.stringify(JSON.decycle(obj)));
-			str += JSON.stringify(arguments[i]);
+			if ('function' == typeof (JSON.decycle)) {
+				str += JSON.stringify(JSON.decycle(arguments[i]));
+			} else {
+				str += JSON.stringify(arguments[i]);
+			}
 		} else {
 			str += arguments[i];
 		}
