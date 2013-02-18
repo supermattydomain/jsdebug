@@ -10,7 +10,48 @@
  */
 var showDebugAlerts = true;
 var maxAlertCount = 5;
-var alertCount = 0;
+
+function limitInvocations(thisObj, func, limit) {
+	var count = 0;
+	return (function() {
+		var args;
+		if (++count > limit) {
+			return;
+		}
+		// Workaround: Function.apply cannot use 'arguments' as-is in older JS engines
+		args = Array.prototype.slice.call(arguments);
+		// Workaround: f may not be a Function, so may lack an 'apply' member
+		return Function.prototype.apply.call(func, thisObj, args);
+	});
+}
+	
+function getFuncName(func) {
+	var m;
+	if ('name' in func) {
+		return func.name;
+	}
+	m = func.toString().match(/function[ \t\r\n]+([^ \t\r\n(]+)[ \t\r\n]*\(/);
+	if (m) {
+		return m[1];
+	}
+	return undefined;
+}
+
+var origWindowAlert = window.alert;
+function alertWithCallerName(str) {
+	var callerName = '';
+	if (!callerName && alertWithCallerName.caller) {
+		callerName = getFuncName(alertWithCallerName.caller);
+	}
+	if (!callerName && arguments.caller) {
+		callerName = getFuncName(arguments.caller);
+	}
+	if (!callerName) {
+		callerName = '(anonymous function)';
+	}
+	origWindowAlert(callerName + ': ' + str);
+}
+window.alert = alertWithCallerName;
 
 /**
  * In Firefox 7.0.1 {Win32|Win64|Linux}, console.log displays any arguments in the
@@ -19,17 +60,15 @@ var alertCount = 0;
  * developer tools window, but it only works when the 'developer tools' window
  * is open at the time that console.log is called.
  */
-function getDebugFunc(str) {
-	if ('object' == typeof(console) && 'undefined' != typeof (console.log)) {
-		return console.log;
-	} else if (showDebugAlerts && alertCount < maxAlertCount) {
-		return function(s) {
-			alert(s);
-			alertCount++;
-		};
+function getDebugFunc() {
+	if ('object' === typeof(console) && 'undefined' !== typeof(console.log)) {
+		// Workaround: console.log may not be a Function, so may lack a 'bind' member
+		return Function.prototype.bind.call(console.log, console);
+	} else if (showDebugAlerts) {
+		return limitInvocations(window, alert, maxAlertCount);
 	}
-	return function(s) {
-		// Nowhere unobtrusive to send this string. Drop it on the floor.
+	return function() {
+		// Nowhere unobtrusive to output these data. Drop them on the floor.
 	};
 }
 
@@ -58,18 +97,13 @@ function argsToString(args) {
 	return str;
 }
 
-var debugFunc = getDebugFunc();
 /**
  * Display a list of JavaScript objects of arbitrary type.
  * 
  * @param objs
  *            Any number of any type of argument - variadic.
  */
-var debug = ("object" == typeof(console) && debugFunc === console.log) ? function() {
-	debugFunc.apply(this, arguments);
-} : function() {
-	debugFunc(argsToString(arguments));
-};
+var debug = getDebugFunc();
 
 function debugEvent(funcName, event) {
 	if (event) {
