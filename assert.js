@@ -1,6 +1,6 @@
 function assert(func) {
 	var name;
-	if (typeof(ENABLE_ASSERTIONS) !== "undefined" && !ENABLE_ASSERTIONS) {
+	if (typeof(ENABLE_ASSERTIONS) === "undefined" || !ENABLE_ASSERTIONS) {
 		return;
 	}
 	name = arguments.callee.caller;
