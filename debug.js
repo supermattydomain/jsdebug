@@ -4,6 +4,35 @@
  */
 
 /**
+ * Polyfill for Function.prototype.bind, present from ECMAScript 5.
+ * Modified version (IE8 resistant) of one found in Mozilla Developer Network:
+ * https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/bind
+ */
+if (!Function.prototype.bind) {
+	Function.prototype.bind = function (oThis) {
+		// IE8 thinks some builtin functions are objects rather than functions
+		if (typeof(this) !== "function" && typeof(this) !== "object") {
+			// closest thing possible to the ECMAScript 5 internal IsCallable function
+			throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+		}
+		var aArgs = Array.prototype.slice.call(arguments, 1),
+			fToBind = this,
+			fNOP = function () {},
+			fBound = function () {
+				// Workaround: fToBind may not be a Function, so may lack an 'apply' member
+				return Function.prototype.apply.call(
+					fToBind,
+					this instanceof fNOP && oThis ? this : oThis,
+					aArgs.concat(Array.prototype.slice.call(arguments))
+				);
+			};
+		fNOP.prototype = this.prototype;
+		fBound.prototype = new fNOP();
+		return fBound;
+	};
+}
+
+/**
  * If true, and if unable to output debug messages unobtrusively, fall back to
  * showing such messages using alert(). If false, attempt to output debug
  * messages unobtrusively, or if that fails, silently throw the messages away.
