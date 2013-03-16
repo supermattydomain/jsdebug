@@ -4,7 +4,7 @@ function assert(func) {
 		return;
 	}
 	name = arguments.callee.caller;
-	name = name ? name.name : "(toplevel)";
+	name = name ? name.name : "(anonymous)";
 	if (!func()) {
 		throw name + ": assertion failed: " + ('' + func).replace(/function[^(]*\([^)]*\)[^{]*{[^r]*return[ \t\n]*/, '').replace(/[ \t\n]*;[ \t\n]*}[ \t\n]*$/, '');
 	}
