@@ -9,3 +9,7 @@ function assert(func) {
 		throw name + ": assertion failed: " + ('' + func).replace(/function[^(]*\([^)]*\)[^{]*{[^r]*return[ \t\n]*/, '').replace(/[ \t\n]*;[ \t\n]*}[ \t\n]*$/, '');
 	}
 }
+
+function abort(arg) {
+	throw(arg || "Aborted");
+}
