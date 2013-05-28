@@ -22,6 +22,8 @@ if (!Function.prototype.bind) {
 				// Workaround: fToBind may not be a Function, so may lack an 'apply' member
 				return Function.prototype.apply.call(
 					fToBind,
+					// Bug: fNOP is not a valid operand to instanceof under WebKit
+					// (but newer WebKit has Function.prototype.bind, so this is unreachable there).
 					this instanceof fNOP && oThis ? this : oThis,
 					aArgs.concat(Array.prototype.slice.call(arguments))
 				);
